@@ -1,9 +1,12 @@
-use std::f64::consts::PI;
-
-mod integrals;
-mod polynomial;
+mod fields;
+mod matrix;
+pub mod polynomial;
+mod tables;
+mod util;
+pub use fields::Field;
 use nalgebra::Vector3;
 
+#[derive(Debug)]
 pub struct Config {
     pub dt: Precision,
     pub steps: usize,
@@ -11,7 +14,7 @@ pub struct Config {
     pub micro_step: usize,
 }
 
-type Precision = f64;
+pub type Precision = f64;
 
 #[derive(Clone)]
 pub struct Electron {
@@ -28,12 +31,6 @@ impl Electron {
 
         Electron { position, velocity }
     }
-}
-
-pub struct Field {
-    pub radius: Precision,
-    pub position: Vector3<Precision>,
-    pub orientation: Vector3<Precision>,
 }
 
 pub struct Simulation {
@@ -72,12 +69,6 @@ impl Simulation {
         self.scale_factor = scale_factor;
         self.electron_charge *= scale_factor;
         self.electron_mass *= scale_factor;
-    }
-
-    pub fn populate(&mut self) {}
-
-    pub fn tick_adpative(&mut self, dt: Precision) {
-        //
     }
 
     pub fn tick_rk4(&mut self, dt: Precision) {
@@ -130,35 +121,5 @@ impl Simulation {
 
         // f = ma
         force / self.electron_mass
-    }
-}
-
-impl Field {
-    // https://tiggerntatie.github.io/emagnet-py/offaxis/off_axis_loop.html
-    fn b_field(&self, particle_pos: &Vector3<Precision>) -> Vector3<Precision> {
-        let mut total_beta = Vector3::default();
-
-        let alpha = self.radius / self.position.y;
-        let beta = (particle_pos.z - self.position.z) / self.position.y;
-        let gamma = (particle_pos.z - self.position.z);
-
-        // Q = sqrt((1.0f + a) * (1.0f + a) + B*B);
-        let q = ((1.0 + alpha).powi(2) + beta.powi(2)).sqrt();
-
-        // complete elliptic integral of the first kind
-        // k = (int)(4.0f * a / (Q*Q) *10000000);
-        // let k = 4.0 * alpha / q.powi(2) * 10_000_000.0;
-
-        // E_k = ee[k];
-        // K_k = ek[k];
-
-        // let B_r = self.position.z * ((particle_pos.z - coils[i].x) / r) / (PI * Q)
-        //     * ((E_k * (1.0 + alpha * alpha + B * B) / ((Q * Q) - 4.0 * alpha)) - K_k);
-
-        // b.z += coils[i].z * (1.0f)/( M_PI * Q) * (( E_k * (1.0f - a*a - B*B)/((Q*Q)-4.0f*a)) + K_k);
-        // b.x += pos.x / r * B_r;
-        // b.y += pos.y / r * B_r;
-
-        total_beta
     }
 }

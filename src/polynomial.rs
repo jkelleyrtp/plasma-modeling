@@ -22,13 +22,13 @@ impl<T: Zero> Polynomial<T> {
     /// assert_eq!("1+2*x+3*x^2", poly.pretty("x"));
     /// ```
     #[inline]
-    pub fn new_vec(mut data: SmallVec<[T; 11]>) -> Self {
+    pub fn new_vec(data: SmallVec<[T; 11]>) -> Self {
         Self { data }
     }
 }
 
 impl Polynomial<f64> {
-    pub const fn new(mut data: [f64; 11]) -> Self {
+    pub const fn new(data: [f64; 11]) -> Self {
         Self {
             data: SmallVec::from_const(data),
         }
